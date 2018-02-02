@@ -1,53 +1,64 @@
-
-remglk_nonpkg_cflags=""
-remglk_nonpkg_libs=""
-
-AC_CHECK_HEADER([glk.h],
+AC_CHECK_HEADERS([glk.h],
   [],
-  [for dir in $with_glk_includedir /usr/include /usr/local/include /usr/include/remglk /usr/local/include/remglk ; do
-     AC_MSG_CHECKING(for glk.h in $dir)
-     if [ test -e $dir/glk.h ]; then
-       AC_MSG_RESULT(yes)
-       remglk_h_dir=$dir
-       break
-     else
-       AC_MSG_RESULT(no)
-     fi
-   done
-   if [ test "x$remglk_h_dir" == "x"] ; then
-     echo "Could not find glk.h."
-     echo "Try setting the location using --with-remglk-includedir."
-     AS_EXIT
-   fi
-   remglk_nonpkg_cflags+=" -I$remglk_h_dir"
+  [AC_MSG_ERROR([Could not find glk.h header. Try setting the include path location using: 'CPPFLAGS="-I<includedir>" configure'])
+  ])
 
-   CFLAGS_SAVED=$CFLAGS
-   LIBS_SAVED=$LIBS
-   LDFLAGS_SAVED=$LDFLAGS
-   LIBS="-lremglk"
-   for dir in $with_remglk_libdir /usr/lib /usr/local/lib ; do
-     AC_MSG_CHECKING(for libremglk in $dir)
-     LDFLAGS="-L$dir"
-     AC_TRY_LINK(
-       [#include <stdio.h>
-        #include "$remglk_h_dir/glk.h"
-        #include "$remglk_h_dir/glkstart.h"],
-       [glkunix_argumentlist_t glkunix_arguments[] = { };
-        int glkunix_startup_code(glkunix_startup_t *data) { }
-        void glk_main(void) { glk_exit(); } ],
-       [AC_MSG_RESULT(yes)
-        remglk_l_dir=$dir
-        break],
-       [AC_MSG_RESULT(no)])
-   done
-   if [ test "x$remglk_l_dir" == "x"] ; then
-     echo "Could not find libremglk."
-     echo "Try setting the location using --with-remglk-libdir."
-     exit
-   fi
-   LIBS=$LIBS_SAVED
-   LDFLAGS=$LDFLAGS_SAVED
-   CFLAGS=$CFLAGS_SAVED
-   remglk_nonpkg_libs="-L$remglk_h_dir -lremglk"
-   libremglk_LIBS="-L$remglk_l_dir -lremglk"])
+AC_CHECK_HEADERS([glkstart.h],
+  [],
+  [AC_MSG_ERROR([Could not find glkstart.h header. Try setting the include path location using: 'configure CPPFLAGS="-I<includedir>"'])
+  ],
+  [#ifdef HAVE_GLK_H
+  #  include <glk.h>
+  #endif
+  ])
 
+# Ideally, we could use AC_CHECK_LIB([remglk], [glkunix_stream_open_pathname]),
+# but remglk (a) defines its own main(), and (b) requires us to define a small
+# number of specific functions that AC_CHECK_LIB() has no way to inject.  So,
+# we have to use lower-level autoconf functionality to provide a complete test
+# source file.
+#
+# The implementation of AC_CHECK_LIB() temporarily adds the library to LIBS,
+# does the link, re-sets LIBS, and then re-adds the library back to LIBS if
+# the link was successful.  Rather than remove/re-add, we leave it in place,
+# and only do the reset on failure (even though we'll also then fail out).
+
+AC_MSG_CHECKING([for glkunix_stream_open_pathname in -lremglk])
+
+remglk_save_LIBS=$LIBS
+LIBS="-lremglk $LIBS"
+
+AC_LINK_IFELSE([AC_LANG_SOURCE(
+  [[#ifdef __cplusplus
+    extern "C"
+    #endif
+    #ifdef HAVE_GLK_H
+    #  include <glk.h>
+    #endif
+    #ifdef HAVE_GLKSTART_H
+    #  include <glkstart.h>
+    #endif
+
+    glkunix_argumentlist_t glkunix_arguments[] = {
+      { NULL, glkunix_arg_End, NULL }
+    };
+
+    void glk_main()
+    {
+      glkunix_stream_open_pathname((char *)0, (glui32)0, (glui32)0);
+    }
+
+    int glkunix_startup_code(glkunix_startup_t *data)
+    {
+      return 0;
+    }
+  ]])],
+  [AC_MSG_RESULT(yes)
+   cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBREMGLK 1
+_ACEOF
+  ],
+  [AC_MSG_RESULT(no)
+   LIBS=$remglk_save_LIBS
+   AC_MSG_ERROR([Could not link with -lremglk. Try setting the location using: 'configure LDFLAGS="-L<libdir>"'.])
+  ])

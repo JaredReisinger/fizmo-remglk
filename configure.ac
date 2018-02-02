@@ -17,7 +17,7 @@
 # 3. Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 # IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 # THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -50,14 +50,14 @@ AC_PROG_RANLIB
 
 PKG_CHECK_MODULES([libfizmo], [libfizmo >= 0.7.15])
 PKG_CHECK_MODULES([libglkif], [libglkif >= 0.2.4])
-m4_include(config-libs.m4)
 
-AC_SUBST([REMGLK_NONPKG_CFLAGS], "$remglk_nonpkg_cflags")
-AC_SUBST([REMGLK_NONPKG_LIBS], "$remglk_nonpkg_libs")
+m4_include(config-conds.m4)
+m4_include(config-flags.m4)
+m4_include(config-libs.m4)
+m4_include(config-subst.m4)
 
 AM_CONDITIONAL([ENABLE_TRACING],
                 [test "$enable_tracing" = "yes"])
 
 AC_CONFIG_FILES([Makefile src/fizmo-remglk/Makefile])
 AC_OUTPUT
-

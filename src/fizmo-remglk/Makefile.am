@@ -17,7 +17,7 @@
 # 3. Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 # IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
 # THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -31,9 +31,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-AM_CFLAGS = $(libfizmo_CFLAGS) $(libglkif_CFLAGS) $(ncursesw_CFLAGS) $(LIBNCURSESW_NONPKG_CFLAGS) $(REMGLK_NONPKG_CFLAGS)
+AM_CFLAGS = $(libfizmo_CFLAGS) $(libglkif_CFLAGS) $(ncursesw_CFLAGS) $(LIBNCURSESW_NONPKG_CFLAGS)
 AM_CPPFLAGS =
-LDADD = $(libfizmo_LIBS) $(libglkif_LIBS) $(ncursesw_LIBS) $(LIBNCURSESW_NONPKG_LIBS) $(REMGLK_NONPKG_LIBS)
+LDADD = $(libfizmo_LIBS) $(libglkif_LIBS) $(ncursesw_LIBS) $(LIBNCURSESW_NONPKG_LIBS)
 
 bin_PROGRAMS = fizmo-remglk
 fizmo_remglk_SOURCES = fizmo-remglk.c
@@ -41,4 +41,3 @@ fizmo_remglk_SOURCES = fizmo-remglk.c
 if ENABLE_TRACING
 AM_CFLAGS += -DENABLE_TRACING=
 endif
-
